@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# Bash script that transfers a file from our client to a server:
+# the number of argument that pass into the requered number
+# then : syntax used in an if statement in Bash. It is used to separate the condition from the block 
+if [ "$#" -lt 4 ]; then
+    echo "Usage: $0 PATH_TO_FILE IP USERNAME PATH_TO_SSH_KEY"
+    exit 1
+fi
+
+# Assign input parameters to variables
+FILE=$1
+IP=$2
+USERNAME=$3
+SSH_KEY=$4
+
+# Use scp to transfer the file
+scp -i "$SSH_KEY" -o StrictHostKeyChecking=no "$FILE" "${USERNAME}@${IP}:~/"
