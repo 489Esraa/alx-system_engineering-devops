@@ -1,35 +1,44 @@
 #!/usr/bin/python3
-"""
-Returns to-do list information for a given employee ID.
-
-This script takes an employee ID as a command-line argument and fetches
-the corresponding user information and to-do list from the JSONPlaceholder API.
-It then prints the tasks completed by the employee.
-"""
-
+"""Gather data from an API"""
 import requests
 import sys
 
 
+def get_user_name(user_id):
+    """Get the list of users"""
+    url = "https://jsonplaceholder.typicode.com"
+    endpoint = "users"
+    """Format the url"""
+    url_to_call = f"{url}/{endpoint}/{user_id}"
+    """Get the response"""
+    response = requests.get(url_to_call)
+    json_response = response.json()
+    return json_response
+
+
+def get_user_todos(user_id):
+    """Get the list of todos"""
+    url = "https://jsonplaceholder.typicode.com"
+    endpoint = "todos"
+    """Format the url"""
+    url_to_call = f"{url}/users/{user_id}/{endpoint}"
+    """Get the response"""
+    response = requests.get(url_to_call)
+    json_response = response.json()
+    return json_response
+
+
 if __name__ == "__main__":
-    # Base URL for the JSONPlaceholder API
-    url = "https://jsonplaceholder.typicode.com/"
-
-    # Get the employee information using the provided employee ID
-    employee_id = sys.argv[1]
-    user = requests.get(url + "users/{}".format(employee_id)).json()
-
-    # Get the to-do list for the employee using the provided employee ID
-    params = {"userId": employee_id}
-    todos = requests.get(url + "todos", params).json()
-
-    # Filter completed tasks and count them
-    completed = [t.get("title") for t in todos if t.get("completed") is True]
-
-    # Print the employee's name and the number of completed tasks
-    print("Employee {} is done with tasks({}/{}):".format(
-        user.get("name"), len(completed), len(todos)))
-
-    # Print the completed tasks one by one with indentation
-    [print("\t {}".format(complete)) for complete in completed]
-
+    """Get User TODOS"""
+    user_id = sys.argv[1]
+    user = get_user_name(user_id)
+    user_todos = get_user_todos(user_id)
+    user_name = user.get("name")
+    total_tasks = len(user_todos)
+    completed_tasks_list = list(map(lambda x: x.get("completed"), user_todos))
+    completed_tasks = completed_tasks_list.count(True)
+    print(f"Employee {user_name} is done with "
+          f"tasks({completed_tasks}/{total_tasks}):")
+    for task in user_todos:
+        if task.get("completed"):
+            print(f"\t {task.get('title')}")
